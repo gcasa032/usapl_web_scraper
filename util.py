@@ -45,7 +45,13 @@ def get_meet(id):
     else:
         meet_state = ""
 
-    meet_results = meet.find('table', id='competition_view_results').find('tbody').find_all("tr")
+    meet_results_table = meet.find('table', id='competition_view_results')
+
+    if meet_results_table is not None:
+        meet_results = meet_results_table.find('tbody').find_all("tr")
+    else:
+        return []
+
     results_db = []
 
     for result in meet_results:

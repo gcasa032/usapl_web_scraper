@@ -31,6 +31,8 @@ for i, meet in enumerate(all_meets):
 
         meet_results = util.get_meet(meet['id'])
 
+        # Test meet results
+
         res_writer.writerows(meet_results)
         meta_writer.writerow([meet['id'], meet['date'], date.today().strftime("%m/%d/%Y")])    
 
