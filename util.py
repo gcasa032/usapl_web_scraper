@@ -134,7 +134,7 @@ class Division:
 
         header_text = header.get_text(strip=True)
 
-        if header.get('class') and header['class'] == 'competition_view_event':
+        if header.get('class') and header['class'][0] == 'competition_view_event':
             self.event = header_text
             return
 
