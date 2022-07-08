@@ -9,6 +9,28 @@ from datetime import date
 
 import config
 
+# Gets all lifters from USAPL Database and returns a set of lifter IDs
+def get_all_lifters():
+    
+    page = 1
+    url = 'https://usapl.liftingdatabase.com/lifters-default?p='
+    lifters_db = set()
+
+    parse_id = re.compile(r'^lifters-view\?id=(\d+)')
+
+    while (True) :
+        lifters_html = requests.get(url+str(page)).content
+        lifters = BeautifulSoup(lifters_html, 'lxml').find('table', class_ = 'tabledata').find("tbody").find_all("tr")
+
+        if len(lifters) == 0:
+            break
+        else:
+            for lifter in lifters:
+                lifters_db.add(parse_id.findall(lifter.find("td").a['href'])[0])
+            page += 1
+
+    return lifters_db
+
 
 # Gets all meets from USAPL Database and retures as a List of dictionaries
 def get_all_meets():
