@@ -1,0 +1,130 @@
+Gender
+    Female
+    Male
+Class
+    Open
+    Raw Youth 3
+    Raw Master 1a
+    Raw Open
+    Raw Teen 3
+    Raw with Wraps Master 4
+    Raw Master
+    Guest Lifter
+    Raw Master 1b
+    Male - Raw with Wraps Open
+Meet Type
+    Push Pull
+    Powerlifting
+    Bench press
+    Deadlift
+
+---------------------------------------------------------------------------
+ 
+Equipment
+
+    If it contains Raw with wraps equipment is Raw with wraps
+    else if it contais Raw Adaptive Athletes it is Raw Adaptive Athletes
+    else if it contains Raw equipment is Raw
+    else it is equipped
+    
+
+
+
+---------------------------------------------------------------------------
+Male **This means it is equipped**
+Squat
+Female
+Deadlift
+Push Pull
+Male - R-H
+Bench press
+Male - Open
+Powerlifting
+Female - Open
+Male - Junior
+Male - Teen 1
+Male - Teen 2
+Male - Teen 3
+Female - Junior
+Female - Teen 1
+Female - Teen 2
+Male - Master 1
+Male - Master 2
+Male - Master 3
+Male - Master 4
+Male - Master 5
+Male - Raw Open
+Male - Raw Teen
+Male - Master 1a
+Male - Master 1b
+Male - Master 2a
+Male - Master 2b
+Male - Master 3a
+Male - Raw Youth
+Female - Master 1
+Female - Master 2
+Female - Master 3
+Female - Master 4
+Female - Raw Open
+Female - Raw Teen
+Male - Raw Junior
+Male - Raw Master
+Male - Raw Teen 1
+Male - Raw Teen 2
+Male - Raw Teen 3
+Male - Raw Youth 1
+Male - Raw Youth 2
+Male - Raw Youth 3
+Female - Raw Junior
+Female - Raw Master
+Female - Raw Teen 1
+Female - Raw Teen 2
+Female - Raw Teen 3
+Male - Guest Lifter
+Male - Raw Master 1
+Male - Raw Master 2
+Male - Raw Master 3
+Male - Raw Master 4
+Male - Raw Master 5
+Male - Raw Master 6
+Male - Raw Open Pro
+Female - High School
+Female - Raw Youth 1
+Female - Raw Youth 2
+Female - Raw Youth 3
+Male - Raw Master 1a
+Male - Raw Master 1b
+Male - Raw Master 2a
+Male - Raw Master 2b
+Male - Raw Master 3a
+Male - Raw Master 3b
+Male - Raw Master 4a
+Male - Raw Master 5a
+Female - Raw Master 1
+Female - Raw Master 2
+Female - Raw Master 3
+Female - Raw Master 4
+Female - Raw Master 5
+Female - Raw Open Pro
+Male - Raw Collegiate
+Female - Raw Master 1a
+Female - Raw Master 1b
+Female - Raw Master 2a
+Female - Raw Master 2b
+Female - Raw Master 3a
+Female - Raw Master 3b
+Female - Raw Master 4a
+Female - Raw Collegiate
+Male - Raw Guest Lifter
+Female - Raw High School
+Female - Raw Guest Lifter
+Male - Raw Police and Fire
+Male - Raw with Wraps Open
+Female - Raw Police and Fire
+Male - Raw Adaptive Athletes
+Male - Raw with Wraps Junior
+Male - Raw with Wraps Teen 2
+Female - Raw with Wraps Junior
+Male - Raw with Wraps Master 4
+Male - Raw with Wraps Master 1a
+Male - Raw with Wraps Guest Lifter

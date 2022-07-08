@@ -7,7 +7,7 @@ import util
 
 
 datastore_metadata = util.get_processed_ids()
-all_meets = util.get_all_meets()
+all_meets = util.get_all_meets()[0:500]
 num_meets = len(all_meets)
 
 # Check if datastores files exists

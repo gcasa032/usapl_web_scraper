@@ -1,3 +1,4 @@
+from __future__ import division
 import csv
 from genericpath import exists
 from bs4 import BeautifulSoup
@@ -39,6 +40,7 @@ def get_meet(id):
     meet = BeautifulSoup(meet_html, 'lxml').find('div', id='content')
 
     meet_info = meet.find('table').tbody.find_all('tr')
+    meet_name = meet.find('h3').string
     meet_date = meet_info[0].td.string.split()[0]
     if len(meet_info) >= 3:
         meet_state = meet_info[2].td.string
@@ -53,14 +55,24 @@ def get_meet(id):
         return []
 
     results_db = []
+    division = Division()
 
     for result in meet_results:
         cols = result.find_all("td")
+
+        division.update(result.find("th"))
+
         if len(cols) > 0:
             results_db.append(
                 {
                     'date': meet_date,
+                    'meet_id': id,
+                    'meet_name': meet_name,
                     'meet_state': meet_state,
+                    'event': division.event, # Powerlifting, Bench, Deadlift, Push Pull, ...
+                    'sex': division.sex, # Male, female
+                    'equipment': division.equipment, # Equipped, Raw, Raw with Wraps...
+                    'division': division.division, # Junior, Open, Master I,....
                     'weight_class_kg': cols[0].string,
                     'placing': cols[1].string,
                     'name': cols[2].string,
@@ -105,3 +117,48 @@ def get_processed_ids():
     data.close()
 
     return processed_meets
+
+
+class Division:
+
+    def __init__(self) -> None:
+        self.event = ''
+        self.sex = ''
+        self.equipment = ''
+        self.division = ''
+
+    def update(self, header):
+        
+        if header is None:
+            return
+
+        header_text = header.get_text(strip=True)
+
+        if header.get('class') and header['class'] == 'competition_view_event':
+            self.event = header_text
+            return
+
+        self.meet_division = header_text
+
+        # Equipment Conditional
+
+        if 'Raw with Wraps' in header_text:
+            self.equipment = 'Raw with Wraps'
+        elif 'Raw' in header_text:
+            self.equipment = 'Raw'
+        else:
+            self.equipment = 'Equipped'
+
+        # Sex Conditional
+
+        if 'Male' in header_text:
+            self.sex = 'Male'
+        elif 'Female' in header_text:
+            self.sex = 'Female'
+
+        # Division Conditional
+        self.division = header_text.replace('Male', '').replace('Female', '').strip('- ')
+
+        return
+        
+        
