@@ -120,6 +120,18 @@ def get_meet(id):
 
     return results_db
 
+def get_lifter_data(id):
+
+    parse_name = re.compile(r'Lifter - (\w+\s+\w+)')
+
+    lifter_html = requests.get("https://usapl.liftingdatabase.com/lifters-view?id=" + str(id)).content
+    lifter = BeautifulSoup(lifter_html, 'lxml').find('div', id='content')
+
+    lifter_name = parse_name.findall(lifter.find('h2').get_text(strip=True))[0]
+
+    print(lifter_name)
+
+
 # Access metadata and return set of processed IDs
 def get_processed_ids():
     
@@ -139,7 +151,6 @@ def get_processed_ids():
     data.close()
 
     return processed_meets
-
 
 class Division:
 
@@ -182,5 +193,3 @@ class Division:
         self.division = header_text.replace('Male', '').replace('Female', '').strip('- ')
 
         return
-        
-        
