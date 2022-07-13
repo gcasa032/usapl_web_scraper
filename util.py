@@ -34,7 +34,6 @@ def get_all_meets():
 # Given a meet ID. This function will return all records from that meet as a list of dictionaries.
 def get_meet(id):
 
-
     meet_html = requests.get("https://usapl.liftingdatabase.com/competitions-view?id=" + str(id)).content
 
     meet = BeautifulSoup(meet_html, 'lxml').find('div', id='content')
@@ -63,6 +62,14 @@ def get_meet(id):
         division.update(result.find("th"))
 
         if len(cols) > 0:
+
+            # get lifter id
+            # call function to get all data from lifter
+            lifter_id = config.parse_lifter_id.findall(cols[2].a.get('href'))[0]
+            instance_id = cols[8].get('id').split('_')[-1]
+            print(lifter_id, instance_id)
+            lifter_info = get_lifter_meet_instance(lifter_id, instance_id)
+
             results_db.append(
                 {
                     'date': meet_date,
@@ -97,6 +104,19 @@ def get_meet(id):
             )
 
     return results_db
+
+def get_lifter_meet_instance(lifter_id, instance_id):
+
+    lifter_html = requests.get("https://usapl.liftingdatabase.com/lifters-view?id=" + str(lifter_id)).content
+
+    lifter = BeautifulSoup(lifter_html, 'lxml').find('div', id='content').find('td', id= re.compile('^.*' + instance_id + '.*$')).parent
+
+    info = {
+        'division': lifter.find_all('td')[3]
+        # TODO get equipment based on division
+    }
+
+    return lifter
 
 # Access metadata and return set of processed IDs
 def get_processed_ids():
@@ -136,9 +156,13 @@ class Division:
 
         if header.get('class') and header['class'][0] == 'competition_view_event':
             self.event = header_text
+            self.sex = ''
+            self.equipment = ''
+            self.division = ''
             return
 
-        self.meet_division = header_text
+        # Division Conditional
+        self.division = header_text.replace('Male', '').replace('Female', '').strip('- ')
 
         # Equipment Conditional
 
@@ -146,7 +170,7 @@ class Division:
             self.equipment = 'Raw with Wraps'
         elif 'Raw' in header_text:
             self.equipment = 'Raw'
-        else:
+        else: 
             self.equipment = 'Equipped'
 
         # Sex Conditional
@@ -155,9 +179,9 @@ class Division:
             self.sex = 'Male'
         elif 'Female' in header_text:
             self.sex = 'Female'
+        else:
+            self.sex - 'Unknown'
 
-        # Division Conditional
-        self.division = header_text.replace('Male', '').replace('Female', '').strip('- ')
 
         return
         
