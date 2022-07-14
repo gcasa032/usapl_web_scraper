@@ -1,4 +1,3 @@
-from __future__ import division
 import csv
 from genericpath import exists
 from bs4 import BeautifulSoup
@@ -8,6 +7,50 @@ import requests
 from datetime import date
 
 import config
+
+def update_division(curr_div, header):
+
+    if curr_div is None:
+        curr_div = {}
+
+    if header is None:
+            return curr_div
+
+    header_text = header.get_text(strip=True)
+
+    if header.get('class') and header['class'][0] == 'competition_view_event':
+        curr_div['event'] = header_text
+        curr_div['sex'] = ''
+        curr_div['equipment'] = ''
+        curr_div['division'] = ''
+        return curr_div
+
+    # Division Conditional
+    curr_div['division'] = header_text.replace('Male', '').replace('Female', '').replace('MX', '').strip('- ')
+
+    # Equipment Conditional
+
+    if 'Raw with Wraps' in header_text:
+        curr_div['equipment'] = 'Raw with Wraps'
+    elif 'Raw' in header_text: 
+        curr_div['equipment'] = 'Raw'
+    elif curr_div['division'] in config.equipped_divisions: 
+        curr_div['equipment'] = 'Equipped'
+    else:
+        curr_div['equipment'] = 'Unknown'
+
+    # Sex Conditional
+
+    if 'Male' in header_text:
+        curr_div['sex'] = 'Male'
+    elif 'Female' in header_text:
+        curr_div['sex'] = 'Female'
+    elif 'MX' in header_text:
+        curr_div['sex'] = 'MX'
+    else:
+        curr_div['sex'] = 'Unknown'
+
+    return curr_div
 
 
 # Gets all meets from USAPL Database and retures as a List of dictionaries
@@ -54,32 +97,30 @@ def get_meet(id):
         return []
 
     results_db = []
-    division = Division()
+    division = {}
 
     for result in meet_results:
         cols = result.find_all("td")
 
-        division.update(result.find("th"))
+        division = update_division(division, result.find("th"))
 
         if len(cols) > 0:
 
-            # get lifter id
-            # call function to get all data from lifter
             lifter_id = config.parse_lifter_id.findall(cols[2].a.get('href'))[0]
             instance_id = cols[8].get('id').split('_')[-1]
-            print(lifter_id, instance_id)
-            lifter_info = get_lifter_meet_instance(lifter_id, instance_id)
 
             results_db.append(
                 {
-                    'date': meet_date,
                     'meet_id': id,
+                    'lifter_id': lifter_id,
+                    'instance_id': instance_id,
+                    'date': meet_date,
                     'meet_name': meet_name,
                     'meet_state': meet_state,
-                    'event': division.event, # Powerlifting, Bench, Deadlift, Push Pull, ...
-                    'sex': division.sex, # Male, female
-                    'equipment': division.equipment, # Equipped, Raw, Raw with Wraps...
-                    'division': division.division, # Junior, Open, Master I,....
+                    'event': division["event"], # Powerlifting, Bench, Deadlift, Push Pull, ...
+                    'sex': division["sex"], # Male, female
+                    'equipment': division["equipment"], # Equipped, Raw, Raw with Wraps...
+                    'division': division["division"], # Junior, Open, Master I,....
                     'weight_class_kg': cols[0].string,
                     'placing': cols[1].string,
                     'name': cols[2].string,
@@ -105,18 +146,32 @@ def get_meet(id):
 
     return results_db
 
+# Will be used in post scrape processing
 def get_lifter_meet_instance(lifter_id, instance_id):
 
     lifter_html = requests.get("https://usapl.liftingdatabase.com/lifters-view?id=" + str(lifter_id)).content
 
     lifter = BeautifulSoup(lifter_html, 'lxml').find('div', id='content').find('td', id= re.compile('^.*' + instance_id + '.*$')).parent
 
-    info = {
-        'division': lifter.find_all('td')[3]
-        # TODO get equipment based on division
-    }
+    division = lifter.find_all('td')[3].get_text(strip=True)
 
-    return lifter
+    # equipment = parse_equipment(division)
+
+        # return {
+        #     'division': division,
+        #     'equipment': equipment
+        # }
+
+    return division  
+
+def parse_equipment(division):
+
+    # Analyse all divisions found in database
+    div_split = division.split('-')
+
+    # Save 
+
+    return
 
 # Access metadata and return set of processed IDs
 def get_processed_ids():
@@ -137,52 +192,5 @@ def get_processed_ids():
     data.close()
 
     return processed_meets
-
-
-class Division:
-
-    def __init__(self) -> None:
-        self.event = ''
-        self.sex = ''
-        self.equipment = ''
-        self.division = ''
-
-    def update(self, header):
-        
-        if header is None:
-            return
-
-        header_text = header.get_text(strip=True)
-
-        if header.get('class') and header['class'][0] == 'competition_view_event':
-            self.event = header_text
-            self.sex = ''
-            self.equipment = ''
-            self.division = ''
-            return
-
-        # Division Conditional
-        self.division = header_text.replace('Male', '').replace('Female', '').strip('- ')
-
-        # Equipment Conditional
-
-        if 'Raw with Wraps' in header_text:
-            self.equipment = 'Raw with Wraps'
-        elif 'Raw' in header_text:
-            self.equipment = 'Raw'
-        else: 
-            self.equipment = 'Equipped'
-
-        # Sex Conditional
-
-        if 'Male' in header_text:
-            self.sex = 'Male'
-        elif 'Female' in header_text:
-            self.sex = 'Female'
-        else:
-            self.sex - 'Unknown'
-
-
-        return
         
         

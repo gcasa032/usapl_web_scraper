@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 
 
-data = pd.read_csv("../data/usapl_data.csv", encoding='cp1252', low_memory=False)
+data = pd.read_csv("../data/usapl_data_v2.csv", encoding='cp1252', low_memory=False)
 
 
 # Bug where no division is specified only Male or Female
