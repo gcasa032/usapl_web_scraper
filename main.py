@@ -1,10 +1,8 @@
 import csv
 from genericpath import exists
 from datetime import date
-
 import config
 import util
-
 
 datastore_metadata = util.get_processed_ids()
 all_meets = util.get_all_meets()[0:100]

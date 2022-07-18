@@ -84,6 +84,7 @@ def get_meet(id):
     meet_info = meet.find('table').tbody.find_all('tr')
     meet_name = meet.find('h3').string
     meet_date = meet_info[0].td.string.split()[0]
+
     if len(meet_info) >= 3:
         meet_state = meet_info[2].td.string
     else:
@@ -117,10 +118,10 @@ def get_meet(id):
                     'date': meet_date,
                     'meet_name': meet_name,
                     'meet_state': meet_state,
-                    'event': division["event"], # Powerlifting, Bench, Deadlift, Push Pull, ...
-                    'sex': division["sex"], # Male, female
-                    'equipment': division["equipment"], # Equipped, Raw, Raw with Wraps...
-                    'division': division["division"], # Junior, Open, Master I,....
+                    'event': division["event"], 
+                    'sex': division["sex"], 
+                    'equipment': division["equipment"], 
+                    'division': division["division"], 
                     'weight_class_kg': cols[0].string,
                     'placing': cols[1].string,
                     'name': cols[2].string,
@@ -147,22 +148,22 @@ def get_meet(id):
     return results_db
 
 # Will be used in post scrape processing
-def get_lifter_meet_instance(lifter_id, instance_id):
+def scrape_lifter_view(lifter_id, instance_id):
 
     lifter_html = requests.get("https://usapl.liftingdatabase.com/lifters-view?id=" + str(lifter_id)).content
 
     lifter = BeautifulSoup(lifter_html, 'lxml').find('div', id='content').find('td', id= re.compile('^.*' + instance_id + '.*$')).parent
 
+    # TODO parse scraped division and map to non abbreviated division and equipemnt
     division = lifter.find_all('td')[3].get_text(strip=True)
 
-    # equipment = parse_equipment(division)
+    equipment = division
 
-        # return {
-        #     'division': division,
-        #     'equipment': equipment
-        # }
+    return {
+        'division': division,
+        'equipment': equipment
+    }
 
-    return division  
 
 def parse_equipment(division):
 
