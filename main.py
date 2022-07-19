@@ -1,11 +1,12 @@
 import csv
 from genericpath import exists
 from datetime import date
+from requests import request, Session
 import config
 import util
 
 datastore_metadata = util.get_processed_ids()
-all_meets = util.get_all_meets()[0:100]
+all_meets = util.get_all_meets()[0:200]
 num_meets = len(all_meets)
 
 # Check if datastores files exists
@@ -21,15 +22,15 @@ meta_writer = csv.writer(metadata_file, delimiter=',', lineterminator='\n')
 res_writer.writeheader() if not data_exists else None
 meta_writer.writerow(config.metastore['header']) if not metadata_exists else None
 
+sesh = Session()
+
 for i, meet in enumerate(all_meets):
 
     if meet['id'] not in datastore_metadata:
 
         print("Processing meet: ", meet['id'], 'from ', meet['date'], '|| Progress: ', i+1, 'out of ', num_meets)
 
-        meet_results = util.get_meet(meet['id'])
-
-        # Test meet results
+        meet_results = util.get_meet(sesh, meet['id'])
 
         res_writer.writerows(meet_results)
         meta_writer.writerow([meet['id'], meet['date'], date.today().strftime("%m/%d/%Y")])    

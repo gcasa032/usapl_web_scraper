@@ -1,9 +1,11 @@
+from __future__ import division
 import csv
 from genericpath import exists
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import re
 import requests
+import cchardet as chardet
 from datetime import date
 
 import config
@@ -75,9 +77,9 @@ def get_all_meets():
     return meet_db
 
 # Given a meet ID. This function will return all records from that meet as a list of dictionaries.
-def get_meet(id):
+def get_meet(sesh, id):
 
-    meet_html = requests.get("https://usapl.liftingdatabase.com/competitions-view?id=" + str(id)).content
+    meet_html = sesh.get("https://usapl.liftingdatabase.com/competitions-view?id=" + str(id)).content
 
     meet = BeautifulSoup(meet_html, 'lxml').find('div', id='content')
 
@@ -148,20 +150,29 @@ def get_meet(id):
     return results_db
 
 # Will be used in post scrape processing
-def scrape_lifter_view(lifter_id, instance_id):
+def scrape_lifter_view(sesh, lifter_id, instance_id):
 
-    lifter_html = requests.get("https://usapl.liftingdatabase.com/lifters-view?id=" + str(lifter_id)).content
+    lifter_html = sesh.get("https://usapl.liftingdatabase.com/lifters-view?id=" + str(lifter_id)).content
 
     lifter = BeautifulSoup(lifter_html, 'lxml').find('div', id='content').find('td', id= re.compile('^.*' + instance_id + '.*$')).parent
 
-    # TODO parse scraped division and map to non abbreviated division and equipemnt
-    division = lifter.find_all('td')[3].get_text(strip=True)
+    meet_instance = lifter.find_all('td')
 
-    equipment = division
+    # TODO Get unknown weight class
+    abv_division = meet_instance[3].get_text(strip=True).split('-')
+    weight_class = meet_instance[4].get_text(strip=True)
+
+    if len(abv_division) > 1:
+        equipment = config.division_map.get(abv_division[0])
+        division = equipment + " " + config.division_map.get(abv_division[1]) 
+    else:
+        equipment = 'Equipped'
+        division = config.division_map.get(abv_division[0])
 
     return {
         'division': division,
-        'equipment': equipment
+        'equipment': equipment,
+        'weight_class': weight_class
     }
 
 
