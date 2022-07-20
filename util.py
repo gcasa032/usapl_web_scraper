@@ -22,9 +22,6 @@ def update_division(curr_div, header):
 
     if header.get('class') and header['class'][0] == 'competition_view_event':
         curr_div['event'] = header_text
-        curr_div['sex'] = ''
-        curr_div['equipment'] = ''
-        curr_div['division'] = ''
         return curr_div
 
     # Division Conditional
@@ -100,7 +97,12 @@ def get_meet(sesh, id):
         return []
 
     results_db = []
-    division = {}
+    division = {
+        'event': '',
+        'sex': '',
+        'equipment': '',
+        'division': ''
+    }
 
     for result in meet_results:
         cols = result.find_all("td")

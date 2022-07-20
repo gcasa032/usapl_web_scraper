@@ -6,7 +6,7 @@ import config
 import util
 
 datastore_metadata = util.get_processed_ids()
-all_meets = util.get_all_meets()[0:200]
+all_meets = util.get_all_meets()
 num_meets = len(all_meets)
 
 # Check if datastores files exists
