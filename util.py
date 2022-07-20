@@ -1,6 +1,7 @@
 from __future__ import division
 import csv
 from genericpath import exists
+from requests import request
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import re
@@ -74,9 +75,9 @@ def get_all_meets():
     return meet_db
 
 # Given a meet ID. This function will return all records from that meet as a list of dictionaries.
-def get_meet(sesh, id):
+def get_meet(id):
 
-    meet_html = sesh.get("https://usapl.liftingdatabase.com/competitions-view?id=" + str(id)).content
+    meet_html = requests.get("https://usapl.liftingdatabase.com/competitions-view?id=" + str(id)).content
 
     meet = BeautifulSoup(meet_html, 'lxml').find('div', id='content')
 
@@ -152,9 +153,9 @@ def get_meet(sesh, id):
     return results_db
 
 # Will be used in post scrape processing
-def scrape_lifter_view(sesh, lifter_id, instance_id):
+def scrape_lifter_view(lifter_id, instance_id):
 
-    lifter_html = sesh.get("https://usapl.liftingdatabase.com/lifters-view?id=" + str(lifter_id)).content
+    lifter_html = requests.get("https://usapl.liftingdatabase.com/lifters-view?id=" + str(lifter_id)).content
 
     lifter = BeautifulSoup(lifter_html, 'lxml').find('div', id='content').find('td', id= re.compile('^.*' + instance_id + '.*$')).parent
 

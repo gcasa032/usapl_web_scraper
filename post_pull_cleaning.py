@@ -1,30 +1,48 @@
 from re import U
+import time
 from bs4 import BeautifulSoup
 from requests import request, Session
 import pandas as pd
 import numpy as np
 import util
-
-data = pd.read_csv("data/usapl_data.csv", encoding='cp1252', low_memory=False, keep_default_na=False)
-
-leng = len(data)
+import config
+import concurrent.futures
 
 #TODO get unknown sex from previous meets
 
-sesh = Session()
 
-for x in data.index:
-    if data.loc[x, 'equipment'] == 'Unknown' or data.loc[x, 'weight_class_kg'] == '':
-        print('Processing: ', x, 'out of:', leng)
-        lifter_id = str(data.loc[x, 'lifter_id'])
-        instance_id = str(data.loc[x, 'instance_id'])
+data = pd.read_csv(config.datastore['file'], encoding='cp1252', low_memory=False, keep_default_na=False)
+data_index = list(data.index.values)
+leng = len(data)
+print(leng)
 
-        res = util.scrape_lifter_view(sesh, lifter_id, instance_id)
+def clean_row(index):
 
-        data.loc[x, 'equipment'] = res['equipment']
-        data.loc[x, 'division'] = res['division']
-        data.loc[x, 'weight_class_kg'] = res['weight_class']
 
-        print(data.loc[x, 'equipment'], data.loc[x, 'division'], data.loc[x, 'weight_class_kg'])
+    if data.loc[index, 'equipment'] == 'Unknown' or data.loc[index, 'weight_class_kg'] == '':
+        print('Processing: ', index, 'out of:', leng)
+        lifter_id = str(data.loc[index, 'lifter_id'])
+        instance_id = str(data.loc[index, 'instance_id'])
 
-data.to_csv('data/processed_usapl_data.csv', index = False)
+        res = util.scrape_lifter_view(lifter_id, instance_id)
+        print(res)
+
+        data.loc[index, 'equipment'] = res['equipment']
+        data.loc[index, 'division'] = res['division']
+        data.loc[index, 'weight_class_kg'] = res['weight_class']
+
+        print(data.loc[index, 'equipment'], data.loc[index, 'division'], data.loc[index, 'weight_class_kg'])
+
+
+def clean():
+
+    threads = min(config.MAX_THREADS, len(data))
+
+    t0 = time.time()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+        executor.map(clean_row, data_index)
+    t1 = time.time()
+
+    data.to_csv('data/processed_usapl_data.csv', index = False)
+
+clean()

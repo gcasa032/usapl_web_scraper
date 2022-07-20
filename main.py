@@ -1,9 +1,13 @@
 import csv
 from genericpath import exists
 from datetime import date
+import time
 from requests import request, Session
 import config
 import util
+import concurrent.futures
+import post_pull_cleaning
+
 
 datastore_metadata = util.get_processed_ids()
 all_meets = util.get_all_meets()
@@ -22,23 +26,33 @@ meta_writer = csv.writer(metadata_file, delimiter=',', lineterminator='\n')
 res_writer.writeheader() if not data_exists else None
 meta_writer.writerow(config.metastore['header']) if not metadata_exists else None
 
-sesh = Session()
-
-for i, meet in enumerate(all_meets):
+def scrape_meet(meet):
 
     if meet['id'] not in datastore_metadata:
 
-        print("Processing meet: ", meet['id'], 'from ', meet['date'], '|| Progress: ', i+1, 'out of ', num_meets)
+        print("Processing meet: ", meet['id'], 'from ', meet['date'])
 
-        meet_results = util.get_meet(sesh, meet['id'])
+        meet_results = util.get_meet(meet['id'])
 
         res_writer.writerows(meet_results)
-        meta_writer.writerow([meet['id'], meet['date'], date.today().strftime("%m/%d/%Y")])    
+        meta_writer.writerow([meet['id'], meet['date'], date.today().strftime("%m/%d/%Y")])     
+
+threads = min(config.MAX_THREADS, num_meets) 
+
+t0 = time.time()
+with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+    executor.map(scrape_meet, all_meets)
+t1 = time.time()
 
 res_file.close()
 metadata_file.close()
 
-print("Data Pull Complete")
+print(f"Data Pull Complete. It took {t1-t0} to scrape {num_meets} meets")
+
+print("Starting post data pull cleaning")
+post_pull_cleaning.clean()
+
+
 
 
 

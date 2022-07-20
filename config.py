@@ -1,7 +1,9 @@
 import re
 
+MAX_THREADS = 30
+
 metastore = dict(
-    file = 'data/meet_metadata.csv',
+    file = 'data/multithread/meet_metadata.csv',
     header = [
         'id',
         'date',
@@ -10,7 +12,7 @@ metastore = dict(
     )
 
 datastore = dict(
-    file = 'data/usapl_data.csv',
+    file = 'data/multithread/usapl_data.csv',
     header = [
         'meet_id',
         'lifter_id',
