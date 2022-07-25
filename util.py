@@ -56,7 +56,6 @@ def update_division(curr_div, header):
 # Gets all meets from USAPL Database and retures as a List of dictionaries
 def get_all_meets():
 
-
     meets_html = requests.get("https://usapl.liftingdatabase.com/competitions").content
     meets = BeautifulSoup(meets_html, 'lxml').find('table', class_ = 'tabledata').find("tbody").find_all("tr")
 
@@ -77,7 +76,12 @@ def get_all_meets():
 # Given a meet ID. This function will return all records from that meet as a list of dictionaries.
 def get_meet(id):
 
-    meet_html = requests.get("https://usapl.liftingdatabase.com/competitions-view?id=" + str(id)).content
+    meet_html_req = requests.get("https://usapl.liftingdatabase.com/competitions-view?id=" + str(id))
+
+    if meet_html_req.status_code != 200:
+        raise Exception("Servel call failed with code ", meet_html_req.status_code)
+
+    meet_html = meet_html_req.content
 
     meet = BeautifulSoup(meet_html, 'lxml').find('div', id='content')
 
