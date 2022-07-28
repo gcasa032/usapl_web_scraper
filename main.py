@@ -6,9 +6,10 @@ from requests import request, Session
 import config
 import util
 import concurrent.futures
+from post_pull_cleaning import clean
 
 datastore_metadata = util.get_processed_ids()
-all_meets = util.get_all_meets()[0:300]
+all_meets = util.get_all_meets()
 num_meets = len(all_meets)
 
 # Check if datastores files exists
@@ -44,7 +45,7 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
     for fut in concurrent.futures.as_completed(futures):
             if fut.exception() is not None:
                 data = futures[fut]
-                print(data["id"], 'failed due to', fut.exception(), 'Retrying')
+                print(f'{data["id"]} failed due to {fut.exception()} Retrying')
                 executor.submit(scrape_meet, data)
 t1 = time.time()
 
@@ -53,8 +54,8 @@ metadata_file.close()
 
 print(f"Data Pull Complete. It took {t1-t0} to scrape {num_meets} meets")
 
-# print("Starting post data pull cleaning")
-# post_pull_cleaning.clean()
+# print("\nStarting post data pull cleaning")
+# clean()
 
 
 

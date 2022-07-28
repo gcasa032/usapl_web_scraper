@@ -1,6 +1,6 @@
 import re
 
-MAX_THREADS = 30
+MAX_THREADS = 10
 
 metastore = dict(
     file = 'data/multithread/meet_metadata.csv',
