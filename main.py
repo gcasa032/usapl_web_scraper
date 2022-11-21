@@ -38,7 +38,7 @@ for i, meet in enumerate(all_meets):
 res_file.close()
 metadata_file.close()
 
-print("Data Pull Complete")
+print("Data Pull Complete ")
 
 
 
